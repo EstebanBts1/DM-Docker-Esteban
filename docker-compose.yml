@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: gestion_stock
+      MYSQL_USER: user
+      MYSQL_PASSWORD: userpass
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./docker/mysql:/docker-entrypoint-initdb.d
+    networks:
+      - app-network
+
+  php:
+    build: .
+    container_name: php
+    volumes:
+      - ./src:/var/www/html
+    ports:
+      - "8080:80"
+    networks:
+      - app-network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    restart: always
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: rootpass
+    ports:
+      - "8081:80"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
